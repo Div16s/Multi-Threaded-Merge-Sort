@@ -6,6 +6,7 @@
 using namespace std;
 
 const int SIZE = 10000000;
+const int THREAD_COUNT = 4;
 
 int main(int argc, char* argv[]){
     vector<int> arr1(SIZE), arr2(SIZE);
@@ -25,7 +26,7 @@ int main(int argc, char* argv[]){
     auto duration = chrono::duration<double>(end-start).count();
     cout << "Time taken to sort the array using normal merge sort algorithm: " << duration << " seconds" << endl;
 
-    unique_ptr<MultiThreadedMergeSort> multiThreadedMergeSort = make_unique<MultiThreadedMergeSort>(arr2);
+    unique_ptr<MultiThreadedMergeSort> multiThreadedMergeSort = make_unique<MultiThreadedMergeSort>(arr2, THREAD_COUNT);
     start = chrono::high_resolution_clock::now();
     multiThreadedMergeSort->merge_sort();
     end = chrono::high_resolution_clock::now();
