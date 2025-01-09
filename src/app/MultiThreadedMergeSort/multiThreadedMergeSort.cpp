@@ -4,10 +4,10 @@
 using namespace std;
 
 // Threshold value for the number of elements in the array to create a new thread
-const int THREAD_THRESHOLD = 50000;
+// const int THREAD_THRESHOLD = 50000;
 
 // Constructor for MultiThreadedMergeSort class
-MultiThreadedMergeSort::MultiThreadedMergeSort(vector<int> &arr) : arr(arr) {}
+MultiThreadedMergeSort::MultiThreadedMergeSort(vector<int> &arr, size_t thread_count) : arr(arr), pool(thread_count) {}
 
 void MultiThreadedMergeSort::recursiveSort(int low, int high) {
     // Base case
@@ -18,12 +18,15 @@ void MultiThreadedMergeSort::recursiveSort(int low, int high) {
 
     if(high-low > THREAD_THRESHOLD) {
         // Sort first and second halves in parallel using threads
-        thread t1(&MultiThreadedMergeSort::recursiveSort, this, low, mid);
-        thread t2(&MultiThreadedMergeSort::recursiveSort, this, mid + 1, high);
+        // thread t1(&MultiThreadedMergeSort::recursiveSort, this, low, mid);
+        // thread t2(&MultiThreadedMergeSort::recursiveSort, this, mid + 1, high);
 
-        // Wait for the threads to finish
-        t1.join();
-        t2.join();
+        // // Wait for the threads to finish
+        // t1.join();
+        // t2.join();
+
+        pool.enqueue([this, low, mid]() { recursiveSort(low, mid); });
+        pool.enqueue([this, mid, high]() { recursiveSort(mid + 1, high); });
     }
     else {
         // Sort first and second halves sequentially
