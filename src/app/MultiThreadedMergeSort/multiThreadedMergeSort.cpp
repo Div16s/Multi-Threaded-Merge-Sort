@@ -1,8 +1,12 @@
 # include "multiThreadedMergeSort.hpp"
 # include <thread>
+# include <algorithm>
 using namespace std;
 
-// Constructor for MergeSort class
+// Threshold value for the number of elements in the array to create a new thread
+const int THREAD_THRESHOLD = 50000;
+
+// Constructor for MultiThreadedMergeSort class
 MultiThreadedMergeSort::MultiThreadedMergeSort(vector<int> &arr) : arr(arr) {}
 
 void MultiThreadedMergeSort::recursiveSort(int low, int high) {
@@ -12,13 +16,20 @@ void MultiThreadedMergeSort::recursiveSort(int low, int high) {
     // Find the middle point
     int mid = low + (high - low) / 2;
 
-    // Sort first and second halves
-    thread t1(&MultiThreadedMergeSort::recursiveSort, this, low, mid);
-    thread t2(&MultiThreadedMergeSort::recursiveSort, this, mid + 1, high);
+    if(high-low > THREAD_THRESHOLD) {
+        // Sort first and second halves in parallel using threads
+        thread t1(&MultiThreadedMergeSort::recursiveSort, this, low, mid);
+        thread t2(&MultiThreadedMergeSort::recursiveSort, this, mid + 1, high);
 
-    // Wait for the threads to finish
-    t1.join();
-    t2.join();
+        // Wait for the threads to finish
+        t1.join();
+        t2.join();
+    }
+    else {
+        // Sort first and second halves sequentially
+        sort(arr.begin() + low, arr.begin() + mid + 1);
+        sort(arr.begin() + mid + 1, arr.begin() + high + 1);
+    }
 
     // Merge the sorted halves
     merge(low, mid, high);
@@ -55,7 +66,7 @@ void MultiThreadedMergeSort::merge(int low, int mid, int high) {
     }
 }
 
-void MultiThreadedMergeSort::sort() {
+void MultiThreadedMergeSort::merge_sort() {
     // base case
     if(arr.size() == 0) return;
     // Create a thread to sort the array
